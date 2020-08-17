@@ -3,6 +3,7 @@ import socket
 import threading
 import time
 
+from connection.message_decoder import decode_message
 from cqrs import CQRS
 
 
@@ -33,11 +34,7 @@ class ConnectionThread(threading.Thread):
     def _handle_connection(self, s):
         while 1:
             data = s.recv(1024).decode("utf-8")
-            decoded = json.loads(data)
-            print(decoded)
-            topic = decoded["topic"]
-            message_data = decoded["data"]
-            self._cqrs.publish_event()
-            #
-            # if "StimulatorStateChangeMessage" == topic:
-            #     self._observer.postEvent(communication_event_state[message_data["state"]])
+            parsed = json.loads(data)
+            print(parsed)
+            event = decode_message(parsed)
+            self._cqrs.publish_event(event)

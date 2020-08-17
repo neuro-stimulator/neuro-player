@@ -1,16 +1,25 @@
+import json
 import sys
+import pprint
 
 import pygame
-
-from experiment_state import ExperimentState
 from collections import defaultdict
+
+from cqrs import CQRS
+from player.state import PlayerState
+
+from connection.event.impl.server_public_path_message_event import EventName as ServerPublicPathMessageEventName
+
+from player.event.handler.server_public_path_message_handler import ServerPublicPathMessageHandler
+
+EVENTS = {
+    ServerPublicPathMessageEventName: ServerPublicPathMessageHandler
+}
 
 
 class AssetPlayer:
-    def __init__(self, caption, width, height, frame_rate):
+    def __init__(self, caption: str, width: int, height: int, frame_rate: int, cqrs: CQRS):
         self.frame_rate = frame_rate
-        self.running = True
-        self.experiment_state = ExperimentState.EXPERIMENT_READY
         pygame.mixer.pre_init(44100, 16, 2, 4096)
         pygame.init()
         pygame.font.init()
@@ -21,10 +30,26 @@ class AssetPlayer:
         self.keyup_handlers = defaultdict(list)
         self.objects = []
         self.mouse_handlers = []
-        self._observer = None
+        self._cqrs = cqrs
+        self._state = PlayerState()
+        self._init_handlers()
+        self._pp = pprint.PrettyPrinter(depth=4)
 
-    def notify(self, command):
-        pass
+    def _init_handlers(self):
+        def _init_command_handlers():
+            pass
+
+        def _init_event_handlers():
+            for event in EVENTS:
+                self._cqrs.add_event_handler(event, EVENTS[event](self._state))
+            pass
+
+        def _init_query_handlers():
+            pass
+
+        _init_command_handlers()
+        _init_event_handlers()
+        _init_query_handlers()
 
     def update(self):
         for o in self.objects:
@@ -40,6 +65,7 @@ class AssetPlayer:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
+                self._pp.pprint(self._state.__dict__)
                 for handler in self.keydown_handlers[event.key]:
                     handler(event.key)
             elif event.type == pygame.KEYUP:
@@ -52,7 +78,7 @@ class AssetPlayer:
                     handler(event.type, event.pos)
 
     def run(self):
-        while self.running:
+        while self._state.running:
             self.surface.fill((255, 255, 255))
 
             self.handle_events()
@@ -62,5 +88,3 @@ class AssetPlayer:
             pygame.display.update()
             self.clock.tick(self.frame_rate)
 
-    def set_observer(self, observer):
-        self._observer = observer

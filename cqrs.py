@@ -43,20 +43,23 @@ class IEventHandler:
         pass
 
 
-class cqrs:
+class CQRS:
     def __init__(self):
         self._command_bus = Subject()
         self._query_bus = Subject()
         self._event_bus = Subject()
 
-        self._commands = []
-        self._queries = []
-        self._events = []
+        self._commands = {}
+        self._queries = {}
+        self._events = {}
 
         self._subscribe()
 
     def _subscribe(self):
-        self._command_bus.subscribe(on_next=lambda command: [for c in filter(lambda cmd: cmd.name == command.name)])
+        self._command_bus.subscribe(
+            on_next=
+            lambda command:
+            [c.execute(command) for c in filter(lambda cmd: cmd.name == command.name, self._commands)])
 
     def execute_command(self, command: ICommand):
         self._command_bus.on_next(command)
@@ -67,7 +70,12 @@ class cqrs:
     def publish_event(self, event: IEvent):
         self._event_bus.on_next(event)
 
-    def add_command_handler(self, command: ICommand, handler: ICommandHandler):
-        if not command.name in self._commands:
-            self._commands[command.name] = []
-        self._commands[command.name].append(handler)
+    def add_command_handler(self, command_name: str, handler: ICommandHandler):
+        if command_name not in self._commands:
+            self._commands[command_name] = []
+        self._commands[command_name].append(handler)
+
+    def add_event_handler(self, event_name: str, handler: IEventHandler):
+        if event_name not in self._events:
+            self._events[event_name] = []
+        self._events[event_name].append(handler)
