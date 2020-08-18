@@ -1,4 +1,4 @@
-from rx.subjects import Subject
+from rx.subject import Subject
 
 
 class IBase:
@@ -56,10 +56,11 @@ class CQRS:
         self._subscribe()
 
     def _subscribe(self):
-        self._command_bus.subscribe(
-            on_next=
-            lambda command:
-            [c.execute(command) for c in filter(lambda cmd: cmd.name == command.name, self._commands)])
+        def _event_next(event: IEvent):
+            handlers = self._events[event.name]
+            for handler in handlers:
+                handler.handle(event)
+        self._event_bus.subscribe(on_next=_event_next)
 
     def execute_command(self, command: ICommand):
         self._command_bus.on_next(command)

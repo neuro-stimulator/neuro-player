@@ -7,6 +7,7 @@ class PlayerState:
         self._experiment_state = ExperimentState.EXPERIMENT_READY
         self._public_path = None
         self._experiment_assets = None
+        self._objects = []
 
     @property
     def running(self):
@@ -39,3 +40,7 @@ class PlayerState:
     @experiment_assets.setter
     def experiment_assets(self, experiment_assets):
         self._experiment_assets = experiment_assets
+
+    @property
+    def objects(self):
+        return self._objects

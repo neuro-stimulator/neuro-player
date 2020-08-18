@@ -6,14 +6,21 @@ import pygame
 from collections import defaultdict
 
 from cqrs import CQRS
+from player.object.image_object import ImageObject
 from player.state import PlayerState
 
 from connection.event.impl.server_public_path_message_event import EventName as ServerPublicPathMessageEventName
+from connection.event.impl.stimulator_state_change_message_event import EventName as StimulatorStateChangeMessageEventName
+from connection.event.impl.experiment_assets_message_event import EventName as ExperimentAssetsMessageEventName
 
 from player.event.handler.server_public_path_message_handler import ServerPublicPathMessageHandler
+from player.event.handler.stimulator_state_change_message_handler import StimulatorStateChangeMessageHandler
+from player.event.handler.experiment_assets_message_handler import ExperimentAssetsMessageHandler
 
 EVENTS = {
-    ServerPublicPathMessageEventName: ServerPublicPathMessageHandler
+    ServerPublicPathMessageEventName: ServerPublicPathMessageHandler,
+    StimulatorStateChangeMessageEventName: StimulatorStateChangeMessageHandler,
+    ExperimentAssetsMessageEventName: ExperimentAssetsMessageHandler
 }
 
 
@@ -28,7 +35,6 @@ class AssetPlayer:
         self.clock = pygame.time.Clock()
         self.keydown_handlers = defaultdict(list)
         self.keyup_handlers = defaultdict(list)
-        self.objects = []
         self.mouse_handlers = []
         self._cqrs = cqrs
         self._state = PlayerState()
@@ -47,17 +53,26 @@ class AssetPlayer:
         def _init_query_handlers():
             pass
 
+        def _init_key_handlers():
+            def func(key):
+                # self._state.objects[0].active = not self._state.objects[0].active
+                self._state.experiment_assets['image']['0']['active'] = not self._state.experiment_assets['image']['0']['active']
+            pass
+
+            self.keyup_handlers[pygame.HWACCEL].append(func)
+
         _init_command_handlers()
         _init_event_handlers()
         _init_query_handlers()
+        _init_key_handlers()
 
     def update(self):
-        for o in self.objects:
-            o.update()
+        for o in self._state.objects:
+            o.update(self._state)
 
     def draw(self):
-        for o in self.objects:
-            o.draw(self.surface)
+        for o in self._state.objects:
+            o.draw(self.surface, self._state)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -69,7 +84,7 @@ class AssetPlayer:
                 for handler in self.keydown_handlers[event.key]:
                     handler(event.key)
             elif event.type == pygame.KEYUP:
-                for handler in self.keydown_handlers[event.key]:
+                for handler in self.keyup_handlers[event.key]:
                     handler(event.key)
             elif event.type in (pygame.MOUSEBUTTONDOWN,
                                 pygame.MOUSEBUTTONUP,
@@ -87,4 +102,3 @@ class AssetPlayer:
 
             pygame.display.update()
             self.clock.tick(self.frame_rate)
-

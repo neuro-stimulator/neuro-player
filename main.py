@@ -32,7 +32,7 @@ logging.info("Inicializuji přehrávač")
 
 cqrs = CQRS()
 
-player = AssetPlayer("Asset player", 800, 600, 30, cqrs)
+player = AssetPlayer("Asset player", 800, 600, 60, cqrs)
 
 connThread = ConnectionThread(cqrs, 8080)
 connThread.setDaemon(True)
