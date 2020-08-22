@@ -1,5 +1,7 @@
 from os import path
-from cqrs import IEventHandler
+from cqrs import IEventHandler, CQRS
+
+from player.object.audio_object import AudioObject
 from player.object.image_object import ImageObject
 from player.state import PlayerState
 
@@ -7,7 +9,7 @@ from connection.event.impl.experiment_assets_message_event import ExperimentAsse
 
 
 class ExperimentAssetsMessageHandler(IEventHandler):
-    def __init__(self, state: PlayerState):
+    def __init__(self, state: PlayerState, cqrs: CQRS):
         self._state = state  # type: { 'audio': {}, 'image': {} }
 
     def handle(self, event: ExperimentAssetsMessageEvent):
@@ -19,6 +21,7 @@ class ExperimentAssetsMessageHandler(IEventHandler):
                 entry = assets[assetIndex]
                 self._state.experiment_assets[assetType][assetIndex] = {'entry': entry, 'active': False}
                 if 'audio' == assetType:
+                    self._state.objects.append(AudioObject(assetIndex, path.join(self._state.public_path, entry)))
                     pass
                 elif 'image' == assetType:
                     self._state.objects.append(ImageObject(assetIndex, path.join(self._state.public_path, entry)))

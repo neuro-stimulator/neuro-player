@@ -1,3 +1,4 @@
+import logging
 import sys
 import pprint
 
@@ -7,13 +8,19 @@ from collections import defaultdict
 from cqrs import CQRS
 from player.state import PlayerState
 
+from player.command.impl.clear_objects_command import CommandName as ClearObjectsCommandName
 from connection.event.impl.server_public_path_message_event import EventName as ServerPublicPathMessageEventName
 from connection.event.impl.stimulator_state_change_message_event import EventName as StimulatorStateChangeMessageEventName
 from connection.event.impl.experiment_assets_message_event import EventName as ExperimentAssetsMessageEventName
 
+from player.command.handler.clear_objects_handler import ClearObjectsHandler
 from player.event.handler.server_public_path_message_handler import ServerPublicPathMessageHandler
 from player.event.handler.stimulator_state_change_message_handler import StimulatorStateChangeMessageHandler
 from player.event.handler.experiment_assets_message_handler import ExperimentAssetsMessageHandler
+
+COMMANDS = {
+    ClearObjectsCommandName: ClearObjectsHandler
+}
 
 EVENTS = {
     ServerPublicPathMessageEventName: ServerPublicPathMessageHandler,
@@ -41,11 +48,15 @@ class AssetPlayer:
 
     def _init_handlers(self):
         def _init_command_handlers():
+            for command in COMMANDS:
+                logging.debug("Inicializuji command handler: " + command)
+                self._cqrs.add_command_handler(command, COMMANDS[command](self._state))
             pass
 
         def _init_event_handlers():
             for event in EVENTS:
-                self._cqrs.add_event_handler(event, EVENTS[event](self._state))
+                logging.debug("Inicializuji event handler: " + event)
+                self._cqrs.add_event_handler(event, EVENTS[event](self._state, self._cqrs))
             pass
 
         def _init_query_handlers():
@@ -54,6 +65,7 @@ class AssetPlayer:
         def _init_key_handlers():
             def func(key):
                 self._state.experiment_assets['image']['0']['active'] = not self._state.experiment_assets['image']['0']['active']
+                self._state.experiment_assets['audio']['0']['active'] = not self._state.experiment_assets['audio']['0']['active']
             pass
 
             self.keyup_handlers[pygame.HWACCEL].append(func)
