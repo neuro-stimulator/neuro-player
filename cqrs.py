@@ -1,4 +1,7 @@
-from rx.subject import Subject
+try:
+    from rx.subject import Subject  # standardní načtení v linuxu
+except:
+    from rx.subjects import Subject  # na Windows se musí použít tento fallback
 
 
 class IBase:
@@ -56,11 +59,23 @@ class CQRS:
         self._subscribe()
 
     def _subscribe(self):
+        def _command_next(command: ICommand):
+            handlers = self._commands[command.name]
+            for handler in handlers:
+                handler.execute(command)
+
         def _event_next(event: IEvent):
             handlers = self._events[event.name]
             for handler in handlers:
                 handler.handle(event)
+
+        def _query_next(query: IQuery):
+            handlers = self._queries[query.name]
+            for handler in handlers:
+                handler.execute(query)
         self._event_bus.subscribe(on_next=_event_next)
+        self._command_bus.subscribe(on_next=_command_next)
+        self._query_bus.subscribe(on_next=_query_next)
 
     def execute_command(self, command: ICommand):
         self._command_bus.on_next(command)
@@ -80,3 +95,8 @@ class CQRS:
         if event_name not in self._events:
             self._events[event_name] = []
         self._events[event_name].append(handler)
+
+    def add_query_handler(self, query_name: str, handler: IQueryHandler):
+        if query_name not in self._queries:
+            self._queries[query_name] = []
+        self._queries[query_name].append(handler)

@@ -20,8 +20,8 @@ class ConnectionThread(threading.Thread):
             try:
                 print("Zkouším se připojit k serveru...")
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    print("Bylo vytvořeno spojení se serverem.")
                     s.connect((socket.gethostname(), self._port))
+                    print("Bylo vytvořeno spojení se serverem.")
                     self._handle_connection(s)
                     print("Spojení se serverem bylo ukončeno.")
             except ConnectionRefusedError:
