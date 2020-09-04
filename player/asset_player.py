@@ -36,8 +36,8 @@ EVENTS = {
 class AssetPlayer:
     def __init__(self, caption: str, width: int, height: int, frame_rate: int, cqrs: CQRS):
         self.frame_rate = frame_rate
-        pygame.mixer.pre_init(44100, 16, 2, 4096)
         pygame.init()
+        pygame.mixer.init()
         pygame.font.init()
         self.surface = pygame.display.set_mode((width, height))
         pygame.display.set_caption(caption)

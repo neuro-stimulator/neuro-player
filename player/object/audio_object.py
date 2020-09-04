@@ -12,7 +12,8 @@ class AudioObject(BaseObject):
     def __init__(self, index: int, path: str):
         super().__init__('AudioObject' + str(next(self._ids)))
         self._index = index
-        self._audio = path
+        # self._audio = path
+        self._audio = pygame.mixer.Sound(path)
         self._active = False
 
     def update(self, state: PlayerState):
@@ -21,5 +22,7 @@ class AudioObject(BaseObject):
 
     def draw(self, surface: pygame.Surface, state: PlayerState):
         if self._active:
-            pygame.mixer.music.load(self._audio)
-            pygame.mixer.music.play()
+            self._audio.play()
+            # pygame.mixer.music.load(self._audio)
+            # pygame.mixer.music.play(0)
+            state.experiment_assets['audio'][str(self._index)]['active'] = False
