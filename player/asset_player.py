@@ -12,11 +12,14 @@ from player.command.impl.clear_objects_command import CommandName as ClearObject
 from connection.event.impl.server_public_path_message_event import EventName as ServerPublicPathMessageEventName
 from connection.event.impl.stimulator_state_change_message_event import EventName as StimulatorStateChangeMessageEventName
 from connection.event.impl.experiment_assets_message_event import EventName as ExperimentAssetsMessageEventName
+from gpio.event.impl.asset_change_request_event import EventName as AssetChangeRequestEventName
 
 from player.command.handler.clear_objects_handler import ClearObjectsHandler
 from player.event.handler.server_public_path_message_handler import ServerPublicPathMessageHandler
 from player.event.handler.stimulator_state_change_message_handler import StimulatorStateChangeMessageHandler
 from player.event.handler.experiment_assets_message_handler import ExperimentAssetsMessageHandler
+from player.event.handler.asset_change_request_handler import AssetChangeRequestHandler
+
 
 COMMANDS = {
     ClearObjectsCommandName: ClearObjectsHandler
@@ -25,7 +28,8 @@ COMMANDS = {
 EVENTS = {
     ServerPublicPathMessageEventName: ServerPublicPathMessageHandler,
     StimulatorStateChangeMessageEventName: StimulatorStateChangeMessageHandler,
-    ExperimentAssetsMessageEventName: ExperimentAssetsMessageHandler
+    ExperimentAssetsMessageEventName: ExperimentAssetsMessageHandler,
+    AssetChangeRequestEventName: AssetChangeRequestHandler
 }
 
 

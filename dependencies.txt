@@ -2,3 +2,4 @@ pip
 pygame
 setuptools
 Rx
+gpiozero
