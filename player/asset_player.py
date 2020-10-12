@@ -69,7 +69,7 @@ class AssetPlayer:
         def _init_key_handlers():
             def func(key):
                 self._state.experiment_assets['image']['0']['active'] = not self._state.experiment_assets['image']['0']['active']
-                self._state.experiment_assets['audio']['0']['active'] = not self._state.experiment_assets['audio']['0']['active']
+                # self._state.experiment_assets['audio']['0']['active'] = not self._state.experiment_assets['audio']['0']['active']
             pass
 
             self.keyup_handlers[pygame.HWACCEL].append(func)

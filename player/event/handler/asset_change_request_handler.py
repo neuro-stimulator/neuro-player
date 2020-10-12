@@ -1,3 +1,5 @@
+import logging
+
 from cqrs import IEventHandler, CQRS
 from gpio.event.impl.asset_change_request_event import AssetChangeRequestEvent
 
@@ -13,6 +15,8 @@ class AssetChangeRequestHandler(IEventHandler):
         if 'image' in self._state.experiment_assets:
             if event.index in self._state.experiment_assets['image']:
                 self._state.experiment_assets['image'][event.index]['active'] = event.enabled
+                logging.debug('image[' + event.index + '].active = ' + str(event.enabled))
         if 'audio' in self._state.experiment_assets:
             if event.index in self._state.experiment_assets['audio']:
                 self._state.experiment_assets['audio'][event.index]['active'] = event.enabled
+                logging.debug('audio[' + event.index + '].active = ' + str(event.enabled))
