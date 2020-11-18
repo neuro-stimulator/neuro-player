@@ -1,4 +1,5 @@
 from player.experiment_state import ExperimentState
+from player.object.prefixes import AudioObjectPrefix, ImageObjectPrefix, TextObjectPrefix
 
 
 class PlayerState:
@@ -44,3 +45,15 @@ class PlayerState:
     @property
     def objects(self):
         return self._objects
+
+    @property
+    def audio_objects(self):
+        return [obj for obj in self._objects if obj.name.startswith(AudioObjectPrefix)]
+
+    @property
+    def image_objects(self):
+        return [obj for obj in self._objects if obj.name.startswith(ImageObjectPrefix)]
+
+    @property
+    def text_objects(self):
+        return [obj for obj in self._objects if obj.name.startswith(TextObjectPrefix)]

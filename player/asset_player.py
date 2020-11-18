@@ -12,6 +12,8 @@ from player.command.impl.clear_objects_command import CommandName as ClearObject
 from connection.event.impl.server_public_path_message_event import EventName as ServerPublicPathMessageEventName
 from connection.event.impl.stimulator_state_change_message_event import EventName as StimulatorStateChangeMessageEventName
 from connection.event.impl.experiment_assets_message_event import EventName as ExperimentAssetsMessageEventName
+from connection.event.impl.toggle_output_synchronization_event import EventName as ToggleOutputSynchronizationEventName
+from connection.event.impl.update_output_data_event import EventName as UpdateOutputDataEventName
 from gpio.event.impl.asset_change_request_event import EventName as AssetChangeRequestEventName
 
 from player.command.handler.clear_objects_handler import ClearObjectsHandler
@@ -19,6 +21,8 @@ from player.event.handler.server_public_path_message_handler import ServerPublic
 from player.event.handler.stimulator_state_change_message_handler import StimulatorStateChangeMessageHandler
 from player.event.handler.experiment_assets_message_handler import ExperimentAssetsMessageHandler
 from player.event.handler.asset_change_request_handler import AssetChangeRequestHandler
+from player.event.handler.toggle_output_synchronization_handler import ToggleOutputSynchronizationHandler
+from player.event.handler.update_output_data_handler import UpdateOutputDataHandler
 
 
 COMMANDS = {
@@ -29,7 +33,9 @@ EVENTS = {
     ServerPublicPathMessageEventName: ServerPublicPathMessageHandler,
     StimulatorStateChangeMessageEventName: StimulatorStateChangeMessageHandler,
     ExperimentAssetsMessageEventName: ExperimentAssetsMessageHandler,
-    AssetChangeRequestEventName: AssetChangeRequestHandler
+    AssetChangeRequestEventName: AssetChangeRequestHandler,
+    ToggleOutputSynchronizationEventName: ToggleOutputSynchronizationHandler,
+    UpdateOutputDataEventName: UpdateOutputDataHandler
 }
 
 
@@ -67,12 +73,11 @@ class AssetPlayer:
             pass
 
         def _init_key_handlers():
-            def func(key):
-                self._state.experiment_assets['image']['0']['active'] = not self._state.experiment_assets['image']['0']['active']
-                # self._state.experiment_assets['audio']['0']['active'] = not self._state.experiment_assets['audio']['0']['active']
-            pass
+            def sys_exit(key):
+                pygame.quit()
+                sys.exit(0)
 
-            self.keyup_handlers[pygame.HWACCEL].append(func)
+            self.keyup_handlers[pygame.K_q].append(sys_exit)
 
         _init_command_handlers()
         _init_event_handlers()
@@ -93,7 +98,6 @@ class AssetPlayer:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
-                self._pp.pprint(self._state.__dict__)
                 for handler in self.keydown_handlers[event.key]:
                     handler(event.key)
             elif event.type == pygame.KEYUP:

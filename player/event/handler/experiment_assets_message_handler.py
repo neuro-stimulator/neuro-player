@@ -1,3 +1,5 @@
+import logging
+
 from os import path
 from cqrs import IEventHandler, CQRS
 
@@ -13,13 +15,14 @@ class ExperimentAssetsMessageHandler(IEventHandler):
         self._state = state  # type: { 'audio': {}, 'image': {} }
 
     def handle(self, event: ExperimentAssetsMessageEvent):
+        logging.debug("Přepisuji seznam všech mediálních souborů.")
         self._state.experiment_assets = {}
         for assetType in event.data:
             assets = event.data[assetType]
             self._state.experiment_assets[assetType] = {}
             for assetIndex in assets:
                 entry = assets[assetIndex]
-                self._state.experiment_assets[assetType][assetIndex] = {'entry': entry, 'active': False}
+                self._state.experiment_assets[assetType][assetIndex] = {'entry': entry, 'active': True, 'x': 0, 'y': 0}
                 if 'audio' == assetType:
                     self._state.objects.append(AudioObject(assetIndex, path.join(self._state.public_path, entry)))
                     pass

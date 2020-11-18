@@ -6,7 +6,10 @@ from player.asset_player import AssetPlayer
 from connection.connection_thread import ConnectionThread
 from cqrs import CQRS
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                    datefmt='%m-%d %H:%M')
 
 logging.info("Vytvářím CQRS instanci.")
 cqrs = CQRS()
