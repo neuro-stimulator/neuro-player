@@ -40,12 +40,15 @@ EVENTS = {
 
 
 class AssetPlayer:
-    def __init__(self, caption: str, width: int, height: int, frame_rate: int, cqrs: CQRS):
+    def __init__(self, caption: str, width: int, height: int, frame_rate: int, fullscreen: bool, cqrs: CQRS):
         self.frame_rate = frame_rate
         pygame.init()
         pygame.mixer.init()
         pygame.font.init()
-        self.surface = pygame.display.set_mode((width, height))
+        flags = 0
+        if fullscreen:
+            flags = pygame.FULLSCREEN
+        self.surface = pygame.display.set_mode((width, height), flags)
         pygame.display.set_caption(caption)
         self.clock = pygame.time.Clock()
         self.keydown_handlers = defaultdict(list)

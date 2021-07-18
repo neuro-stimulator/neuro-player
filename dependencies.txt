@@ -1,5 +1,4 @@
-pip
-pygame
-setuptools
-Rx
-gpiozero
+colorzero==2.0
+gpiozero==1.6.2
+pygame==2.0.1
+Rx==3.1.1

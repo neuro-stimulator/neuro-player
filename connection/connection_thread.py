@@ -13,7 +13,6 @@ from connection.event.impl.server_connected_event import EventName as ServerConn
 from connection.event.impl.server_disconnected_event import EventName as ServerDisonnectedEventName
 from connection.event.impl.unknown_message_event import EventName as UnknownMessageEventName
 
-
 from connection.event.impl.server_connected_event import ServerConnectedEvent
 from connection.event.impl.server_disconnected_event import ServerDisconnectedEvent
 
@@ -34,9 +33,10 @@ EVENTS = {
 
 
 class ConnectionThread(threading.Thread):
-    def __init__(self, cqrs: CQRS, port=8080):
+    def __init__(self, cqrs: CQRS, address: str = "localhost", port: int = 8080):
         threading.Thread.__init__(self)
         self._running = True
+        self._address = address
         self._port = port
         self._cqrs = cqrs
         self._state = ConnectionState()
@@ -66,9 +66,9 @@ class ConnectionThread(threading.Thread):
         logging.info("Starting connection thread...")
         while self._running:
             try:
-                logging.info("Zkouším se připojit k serveru...")
+                logging.info("Zkouším se připojit k serveru: " + self._address + ":" + str(self._port))
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    s.connect((socket.gethostname(), self._port))
+                    s.connect((self._address, self._port))
                     logging.info("Bylo vytvořeno spojení se serverem.")
                     self._cqrs.publish_event(ServerConnectedEvent(s))
                     self._handle_connection(s)
