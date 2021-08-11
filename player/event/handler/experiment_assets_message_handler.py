@@ -22,9 +22,18 @@ class ExperimentAssetsMessageHandler(IEventHandler):
             self._state.experiment_assets[assetType] = {}
             for assetIndex in assets:
                 entry = assets[assetIndex]
-                self._state.experiment_assets[assetType][assetIndex] = {'entry': entry, 'active': True, 'x': 0, 'y': 0}
+                self._state.experiment_assets[assetType][assetIndex] = {
+                    'entry': entry['name'],
+                    'active': True,
+                    'x': entry['x'],
+                    'y': entry['y']
+                }
                 if 'audio' == assetType:
-                    self._state.objects.append(AudioObject(assetIndex, path.join(self._state.public_path, entry)))
+                    self._state.objects.append(
+                        AudioObject(assetIndex, path.join(self._state.public_path, entry['name']))
+                    )
                     pass
                 elif 'image' == assetType:
-                    self._state.objects.append(ImageObject(assetIndex, path.join(self._state.public_path, entry)))
+                    self._state.objects.append(
+                        ImageObject(assetIndex, path.join(self._state.public_path, entry['name']))
+                    )
