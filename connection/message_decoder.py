@@ -7,6 +7,7 @@ from connection.event.impl.toggle_output_message_event import ToggleOutputMessag
 from connection.event.impl.toggle_output_synchronization_event import ToggleOutputSynchronizationEvent
 from connection.event.impl.unknown_message_event import UnknownMessageEvent
 from connection.event.impl.update_output_data_event import UpdateOutputDataEvent
+from connection.event.impl.exit_message_event import ExitMessageEvent
 
 
 def decode_message(message) -> IEvent:
@@ -26,6 +27,8 @@ def decode_message(message) -> IEvent:
         return ToggleOutputSynchronizationEvent(command_id, data["synchronize"])
     elif "UpdateOutputDataMessage" == topic:
         return UpdateOutputDataEvent(data["x"], data["y"], data["type"], data["id"])
+    elif "ExitMessage" == topic:
+        return ExitMessageEvent()
     else:
         return UnknownMessageEvent()
 

@@ -9,6 +9,7 @@ from connection.state import ConnectionState
 from connection.message_decoder import decode_message
 
 from connection.command.impl.send_server_message_command import CommandName as SendServerMessageCommandName
+from connection.command.impl.stop_connection_thread_command import CommandName as StopConnectionThreadCommandName
 from connection.event.impl.server_connected_event import EventName as ServerConnectedEventName
 from connection.event.impl.server_disconnected_event import EventName as ServerDisonnectedEventName
 from connection.event.impl.unknown_message_event import EventName as UnknownMessageEventName
@@ -20,9 +21,11 @@ from connection.event.handler.server_connected_handler import ServerConnectedHan
 from connection.event.handler.server_disconnected_handler import ServerDisconnectedHandler
 from connection.event.handler.unknown_message_handler import UnknownMessageHandler
 from connection.command.handler.send_server_message_handler import SendServerMessageHandler
+from connection.command.handler.stop_connection_thread_handler import StopConnectionThreadHandler
 
 COMMANDS = {
-    SendServerMessageCommandName: SendServerMessageHandler
+    SendServerMessageCommandName: SendServerMessageHandler,
+    StopConnectionThreadCommandName: StopConnectionThreadHandler
 }
 
 EVENTS = {
@@ -35,7 +38,6 @@ EVENTS = {
 class ConnectionThread(threading.Thread):
     def __init__(self, cqrs: CQRS, address: str = "localhost", port: int = 8080):
         threading.Thread.__init__(self)
-        self._running = True
         self._address = address
         self._port = port
         self._cqrs = cqrs
@@ -64,7 +66,8 @@ class ConnectionThread(threading.Thread):
 
     def run(self) -> None:
         logging.info("Starting connection thread...")
-        while self._running:
+        self._state.running = True
+        while self._state.running:
             try:
                 logging.info("Zkouším se připojit k serveru: " + self._address + ":" + str(self._port))
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -83,7 +86,7 @@ class ConnectionThread(threading.Thread):
                 time.sleep(5)
 
     def _handle_connection(self, s: socket):
-        while 1:
+        while self._state.running:
             data = s.recv(1024).decode("utf-8")
             parsed = json.loads(data)
             logging.debug("from server >>> " + data)

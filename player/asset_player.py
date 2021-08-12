@@ -14,6 +14,7 @@ from connection.event.impl.stimulator_state_change_message_event import EventNam
 from connection.event.impl.experiment_assets_message_event import EventName as ExperimentAssetsMessageEventName
 from connection.event.impl.toggle_output_synchronization_event import EventName as ToggleOutputSynchronizationEventName
 from connection.event.impl.update_output_data_event import EventName as UpdateOutputDataEventName
+from connection.event.impl.exit_message_event import EventName as ExitMessageEventName
 from gpio.event.impl.asset_change_request_event import EventName as AssetChangeRequestEventName
 
 from player.command.handler.clear_objects_handler import ClearObjectsHandler
@@ -23,7 +24,9 @@ from player.event.handler.experiment_assets_message_handler import ExperimentAss
 from player.event.handler.asset_change_request_handler import AssetChangeRequestHandler
 from player.event.handler.toggle_output_synchronization_handler import ToggleOutputSynchronizationHandler
 from player.event.handler.update_output_data_handler import UpdateOutputDataHandler
+from player.event.handler.exit_message_handler import ExitMessageHandler
 
+from connection.command.impl.stop_connection_thread_command import StopConnectionThreadCommand
 
 COMMANDS = {
     ClearObjectsCommandName: ClearObjectsHandler
@@ -35,7 +38,8 @@ EVENTS = {
     ExperimentAssetsMessageEventName: ExperimentAssetsMessageHandler,
     AssetChangeRequestEventName: AssetChangeRequestHandler,
     ToggleOutputSynchronizationEventName: ToggleOutputSynchronizationHandler,
-    UpdateOutputDataEventName: UpdateOutputDataHandler
+    UpdateOutputDataEventName: UpdateOutputDataHandler,
+    ExitMessageEventName: ExitMessageHandler
 }
 
 
@@ -122,3 +126,7 @@ class AssetPlayer:
 
             pygame.display.update()
             self.clock.tick(self.frame_rate)
+        logging.info("Byla ukončena hlavní programová smyčka. Zahajuji ukončovací fázi.")
+        self._cqrs.execute_command(StopConnectionThreadCommand())
+        pygame.quit()
+        exit()
